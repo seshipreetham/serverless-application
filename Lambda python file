@@ -1,0 +1,63 @@
+# import the JSON utility package
+import json
+# import the Decimal class from the decimal library for precise arithmetic
+from decimal import Decimal
+# import the Python math library
+import math
+# import the AWS SDK (for Python the package name is boto3)
+import boto3
+# import two packages to help us with dates and date formatting
+from time import gmtime, strftime
+
+# create a DynamoDB object using the AWS SDK
+dynamodb = boto3.resource('dynamodb')
+# use the DynamoDB object to select our table
+table = dynamodb.Table('serverless-2')
+# store the current time in a human readable format in a variable
+now = strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
+
+# define the handler function that the Lambda service will use as an entry point
+def lambda_handler(event, context):
+    # extract the numbers and operation from the Lambda service's event object
+    num1 = Decimal(event['num1'])
+    num2 = Decimal(event['num2'])
+    operation = event['operation']
+    
+    # perform the operation based on the provided operator
+    if operation == 'add':
+        mathResult = num1 + num2
+    elif operation == 'subtract':
+        mathResult = num1 - num2
+    elif operation == 'multiply':
+        mathResult = num1 * num2
+    elif operation == 'divide':
+        if num2 == 0:
+            return {
+                'statusCode': 400,
+                'body': json.dumps('Division by zero is not allowed')
+            }
+        mathResult = num1 / num2
+    elif operation == 'power':
+        mathResult = num1 ** num2
+    else:
+        return {
+            'statusCode': 400,
+            'body': json.dumps('Invalid operation')
+        }
+    
+    # write result and time to the DynamoDB table using the object we instantiated and save response in a variable
+    response = table.put_item(
+        Item={
+            'Date_and_time': now,
+            'Value1': num1,
+            'Value2': num2,
+            'Operation': operation,
+            'Result': mathResult
+        }
+    )
+    
+    # return a properly formatted JSON object
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Your result is ' + str(mathResult))
+    }
