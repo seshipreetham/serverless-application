@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>To the Power of Math!</title>
+    <!-- Styling for the client UI -->
+    <style>
+    h1 {
+        color: #FFFFFF;
+        font-family: system-ui;
+        text-align: center;
+    }
+    body {
+        background-color: #222629;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+    form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 20px;
+    }
+    .input-group {
+        display: flex;
+        margin-bottom: 20px;
+    }
+    .input-group label {
+        color: #86C232;
+        font-family: system-ui;
+        font-size: 20px;
+        margin-right: 10px;
+    }
+    .input-group input {
+        color: #222629;
+        font-family: system-ui;
+        font-size: 20px;
+        width: 100px;
+    }
+    .button-group {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+    button {
+        background-color: #86C232;
+        border-color: #86C232;
+        color: #FFFFFF;
+        font-family: system-ui;
+        font-size: 20px;
+        font-weight: bold;
+        margin: 0 5px;
+        width: 140px;
+    }
+    .sign-out-button {
+        margin-top: 20px;
+        background-color: #86C232;
+        border-color: #86C232;
+        color: #FFFFFF;
+        font-family: system-ui;
+        font-size: 20px;
+        font-weight: bold;
+        width: 140px;
+    }
+    .result {
+        color: #FFFFFF;
+        font-family: system-ui;
+        font-size: 24px;
+        text-align: center;
+        margin-top: 20px;
+    }
+    </style>
+    <script type="text/javascript">
+        (function(d, m){
+            var kommunicateSettings = 
+                {"appId":"277d9c29f1edc13e44571d21db12b37b0","popupWidget":true,"automaticChatOpenOnNavigation":true};
+            var s = document.createElement("script"); s.type = "text/javascript"; s.async = true;
+            s.src = "https://widget.kommunicate.io/v2/kommunicate.app";
+            var h = document.getElementsByTagName("head")[0]; h.appendChild(s);
+            window.kommunicate = m; m._globals = kommunicateSettings;
+        })(document, window.kommunicate || {});
+    /* NOTE : Use web server to view HTML files as real-time update will not work if you directly open the HTML file in the browser. */
+    </script>
+    <script>
+        // callAPI function that takes the operation and numbers as parameters
+        var callAPI = (operation, num1, num2) => {
+            // instantiate a headers object
+            var myHeaders = new Headers();
+            // add content type header to object
+            myHeaders.append("Content-Type", "application/json");
+            // using built-in JSON utility package, turn object to string and store in a variable
+            var raw = JSON.stringify({ "operation": operation, "num1": num1, "num2": num2 });
+            // create a JSON object with parameters for API call and store in a variable
+            var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+            };
+            // make API call with parameters and use promises to get response
+            fetch("https://4pkgytvmr9.execute-api.us-east-1.amazonaws.com/dev", requestOptions)
+                .then(response => response.json())
+                .then(result => {
+                    // Update the result element with the new result
+                    var resultElement = document.querySelector(".result");
+                    resultElement.textContent = "" + JSON.parse(result.body);
+                })
+                .catch(error => console.log('error', error));
+        }
+    </script>
+</head>
+<body>
+    <h1>TO THE POWER OF MATH!</h1>
+    <form>
+        <div class="input-group">
+            <label>Base number:</label>
+            <input type="text" id="num1">
+        </div>
+        <div class="input-group">
+            <label>Second number:</label>
+            <input type="text" id="num2">
+        </div>
+        <!-- set button onClick method to call function we defined passing input values as parameters -->
+        <div class="button-group">
+            <button type="button" onclick="callAPI('add', document.getElementById('num1').value, document.getElementById('num2').value)">ADD</button>
+            <button type="button" onclick="callAPI('subtract', document.getElementById('num1').value, document.getElementById('num2').value)">SUBTRACT</button>
+            <button type="button" onclick="callAPI('multiply', document.getElementById('num1').value, document.getElementById('num2').value)">MULTIPLY</button>
+            <button type="button" onclick="callAPI('divide', document.getElementById('num1').value, document.getElementById('num2').value)">DIVIDE</button>
+            <button type="button" onclick="callAPI('power', document.getElementById('num1').value, document.getElementById('num2').value)">POWER</button>
+        </div>
+    </form>
+    <script>
+        // Append the result below the buttons
+        var resultElement = document.createElement("p");
+        resultElement.textContent = "";
+        resultElement.classList.add("result"); // Add the "result" class to the element
+        document.body.appendChild(resultElement);
+    </script>
+    <!-- Add sign-out button -->
+    <button class="sign-out-button" onclick="window.location.href='https://group-project.auth.us-east-1.amazoncognito.com/login?client_id=1eqmam6db51eg8amtntp6qifvf&response_type=code&scope=aws.cognito.signin.user.admin+email+openid+phone+profile&redirect_uri=https%3A%2F%2Fdev.dyizefam0vb08.amplifyapp.com%2Fmath.html'">Sign Out</button>
+</body>
+</html>
